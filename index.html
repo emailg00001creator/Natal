@@ -3,78 +3,64 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Natal Imersivo</title>
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <style>
-        #overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #1a2a6c, #b21f1f, #fdbb2d);
-            z-index: 10000; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; color: white; font-family: 'Segoe UI', sans-serif;
-        }
-        button {
-            padding: 20px 50px; font-size: 22px; cursor: pointer;
-            background: #27ae60; color: white; border: none; border-radius: 50px;
-            font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;
-        }
-        button:active { transform: scale(0.95); }
-    </style>
+    <title>Natal AR - GitHub Reference</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body style="margin: 0; overflow: hidden; background-color: #000;">
 
-    <div id="overlay">
-        <h1 style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">🎄 Presente de Natal 🎁</h1>
-        <p>Clique para iniciar a experiência AR</p>
-        <button id="startBtn">INICIAR AGORA</button>
+    <div id="loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #111; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h1 style="margin-bottom: 20px;">🎄 Projeto Natal AR</h1>
+        <button id="start-btn" style="padding: 20px 40px; font-size: 20px; background: #e74c3c; border: none; border-radius: 50px; color: white; cursor: pointer; font-weight: bold;">
+            ABRIR PRESENTE
+        </button>
+        <p id="error-msg" style="margin-top: 20px; color: #ff6b6b; display: none; padding: 0 20px; text-align: center;"></p>
     </div>
 
-    <a-scene id="scene" style="display: none;" 
-             renderer="colorManagement: true"
-             embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-        
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
         <a-assets>
-            <audio id="natalSom" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
+            <audio id="musica" src="https://www.mboxdrive.com/jingle-bells-lofi.mp3" preload="auto" loop="true"></audio>
         </a-assets>
 
         <a-entity camera look-controls>
-            <a-entity position="0 -1.2 -3" scale="0.8 0.8 0.8">
-                <a-cone color="#006400" radius-bottom="0.8" height="1.2" position="0 0.6 0"></a-cone>
-                <a-cone color="#006400" radius-bottom="0.6" height="1" position="0 1.2 0"></a-cone>
-                <a-cone color="#006400" radius-bottom="0.4" height="0.8" position="0 1.6 0"></a-cone>
-                <a-cylinder color="#3d2b1f" radius="0.1" height="0.4" position="0 0 0"></a-cylinder>
-                <a-sphere color="yellow" radius="0.1" position="0 2.1 0"
-                          animation="property: scale; to: 1.5 1.5 1.5; dir: alternate; dur: 500; loop: true"></a-sphere>
+            <a-entity position="0 -1.5 -5" scale="2 2 2">
+                <a-cone color="#2d5a27" radius-bottom="1" height="2" position="0 1 0"></a-cone>
+                <a-sphere color="#f1c40f" radius="0.15" position="0 2.1 0" animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; dur: 1000; loop: true"></a-sphere>
+                <a-text value="FELIZ NATAL!" color="#ffffff" align="center" position="0 2.8 0" width="8"></a-text>
                 
-                <a-text value="FELIZ NATAL!" color="#ff0000" align="center" position="0 2.6 0" width="10"></a-text>
-            </a-entity>
-
-            <a-entity position="0 0 -1">
-                <a-sphere color="white" radius="0.01" position="-0.5 1 0" animation="property: position; to: -0.5 -1 0; dur: 3000; loop: true"></a-sphere>
-                <a-sphere color="white" radius="0.01" position="0.5 1.5 -0.5" animation="property: position; to: 0.5 -1 -0.5; dur: 4500; loop: true"></a-sphere>
-                <a-sphere color="white" radius="0.01" position="0 2 0.2" animation="property: position; to: 0 -1 0.2; dur: 3500; loop: true"></a-sphere>
+                <a-sphere color="red" radius="0.05" position="0.4 0.5 0.4"></a-sphere>
+                <a-sphere color="blue" radius="0.05" position="-0.4 1.2 0.2"></a-sphere>
             </a-entity>
         </a-entity>
     </a-scene>
 
     <script>
-        const startBtn = document.getElementById('startBtn');
-        const overlay = document.getElementById('overlay');
-        const scene = document.getElementById('scene');
-        const audio = document.getElementById('natalSom');
+        const btn = document.getElementById('start-btn');
+        const loader = document.getElementById('loading');
+        const errorMsg = document.getElementById('error-msg');
+        const audio = document.getElementById('musica');
 
-        startBtn.addEventListener('click', () => {
-            // Tenta iniciar câmera e áudio juntos
-            navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                overlay.style.display = 'none';
-                scene.style.display = 'block';
-                audio.play(); // Inicia música após o clique (User Gesture)
-                console.log("Câmera e áudio liberados!");
-            })
-            .catch(function(err) {
-                alert("ERRO DE PERMISSÃO: Vá nas configurações do Chrome e permita a câmera para este site.");
-                console.error("Erro ao acessar câmera: ", err);
-            });
+        btn.addEventListener('click', async () => {
+            try {
+                // Tenta forçar a limpeza de processos de mídia antes
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                // Se o navegador liberar a câmera, iniciamos a cena
+                loader.style.display = 'none';
+                audio.play();
+                console.log("Sistema iniciado com sucesso.");
+            } catch (err) {
+                console.error("Erro detectado:", err);
+                errorMsg.style.display = 'block';
+                
+                if (err.name === 'NotReadableError') {
+                    errorMsg.innerText = "ERRO: Câmera ocupada. Feche o WhatsApp/Instagram e recarregue a página.";
+                } else if (err.name === 'NotAllowedError') {
+                    errorMsg.innerText = "ERRO: Permissão negada. Clique no cadeado na barra de endereços e permita a câmera.";
+                } else {
+                    errorMsg.innerText = "Erro: " + err.message;
+                }
+            }
         });
     </script>
 </body>
